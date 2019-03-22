@@ -10,22 +10,58 @@
 
 
 #include "stm32f10x.h"
-			
+
+
 
 int main(void)
 {
 
-//GPIO
+	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+
+// Кнопка 1   A0
+
+GPIOA->CRL &= ~(GPIO_CRL_CNF0_1 | GPIO_CRL_CNF0_0 |
+				GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0);
+
+
+GPIOA->CRL |= GPIO_CRL_CNF0_1;  // порт на вход
+GPIOA->ODR &= ~GPIO_ODR_ODR0;  // подтяжка к -
+
+//Кнопка 2    A1
+GPIOA->CRL &= ~(GPIO_CRL_CNF1_1 | GPIO_CRL_CNF1_0 |
+		      GPIO_CRL_MODE1_1 | GPIO_CRL_MODE1_0);
+
+
+GPIOA->CRL |= GPIO_CRL_CNF1_1;  // порт на вход
+GPIOA->ODR &= ~GPIO_ODR_ODR1;  // подтяжка к -
+
+//Кнопка 3  A2
+GPIOA->CRL &= ~(GPIO_CRL_CNF2_1 | GPIO_CRL_CNF2_0 |
+				GPIO_CRL_MODE2_1 | GPIO_CRL_MODE2_0);
+
+
+GPIOA->CRL |= GPIO_CRL_CNF2_1;  // порт на вход
+GPIOA->ODR &= ~GPIO_ODR_ODR2;  // подтяжка к -
+
+
+//Кнопка 4   A3
+GPIOA->CRL &= ~(GPIO_CRL_CNF3_1 | GPIO_CRL_CNF3_0 |
+				GPIO_CRL_MODE3_1 | GPIO_CRL_MODE3_0);
+
+
+GPIOA->CRL |= GPIO_CRL_CNF3_1;  // порт на вход
+GPIOA->ODR &= ~GPIO_ODR_ODR3;  // подтяжка к -
+
+
+
+//Diod     C13
 RCC->APB2ENR |=RCC_APB2ENR_IOPCEN;
 
-GPIOC->CRH &= ~(GPIO_CRH_CNF15_1 | GPIO_CRH_CNF15_0 |
-		GPIO_CRH_MODE15_1 | GPIO_CRH_MODE15_0 |
-		GPIO_CRH_CNF13_1 |GPIO_CRH_CNF13_0 |
+GPIOC->CRH &= ~(GPIO_CRH_CNF13_1 |GPIO_CRH_CNF13_0 |
 	  GPIO_CRH_MODE13_1 |GPIO_CRH_MODE13_0);
 
-GPIOC->CRH|= GPIO_CRH_MODE13_1|GPIO_CRH_CNF15_1;
+GPIOC->CRH|= GPIO_CRH_MODE13_1;
 
-GPIOC->ODR |= GPIO_ODR_ODR15;
 
 
 //TIM

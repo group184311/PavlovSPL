@@ -11,6 +11,7 @@
 
 #include "stm32f10x.h"
 
+uint16_t delay=500 ;
 
 
 int main(void)
@@ -64,41 +65,46 @@ GPIOC->CRH|= GPIO_CRH_MODE13_1;
 
 
 
-//TIM
+// TIM 3
 RCC->APB1ENR|=RCC_APB1ENR_TIM3EN;
 
 TIM3->PSC=36000-1;
 
-TIM3->ARR=1000-1;
+TIM3->ARR=delay-1;
 
 TIM3->DIER|=TIM_DIER_UIE;
 
-NVIC_EnableIRQ(TIM3_IRQn);
-
+NVIC_EnableIRQ(TIM3_IRQn);  //Включение прерывания
 
 
 	for(;;){
-		if (GPIOC->IDR &GPIO_IDR_IDR15)
-				{
+		if (GPIOA->IDR &GPIO_IDR_IDR0) //проверка состояния
+		{
 		TIM3->CR1 |= TIM_CR1_CEN;
-				}
+		}
 		else
 		{
-			TIM3->CR1 &= ~TIM_CR1_CEN;
-				}
+		TIM3->CR1 &= ~TIM_CR1_CEN;
+		}
+		else if (GPIOA->IDR &GPIO_IDR_IDR1)
+		{
+        delay= 1000;
+		}
+
+
 	};
 
 }
 
 void TIM3_IRQHandler(void)
 {
-	TIM3->SR &= ~TIM_SR_UIF;
+TIM3->SR &= ~TIM_SR_UIF;
 
-	if (GPIOC->ODR & GPIO_ODR_ODR13)
+if (GPIOC->ODR & GPIO_ODR_ODR13)
 
-		GPIOC->BSRR = GPIO_BSRR_BR13;
+	GPIOC->BSRR = GPIO_BSRR_BR13;
 	else
 
-		GPIOC->BSRR = GPIO_BSRR_BS13;
+	GPIOC->BSRR = GPIO_BSRR_BS13;
 
 }

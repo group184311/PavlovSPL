@@ -11,27 +11,26 @@
 
 #include "stm32f10x.h"
 
-// макроопределения кнопок
-#define А0_PRESS (GPIOА->IDR & GPIO_IDR_IDR0)
-#define А1_PRESS (!(GPIOА->IDR & GPIO_IDR_IDR1))
-#define А2_PRESS (!(GPIOА->IDR & GPIO_IDR_IDR2))
-#define А3_PRESS (GPIOA->IDR & GPIO_IDR_IDR3)
+// макроопределения кнопок (ПРОВЕРКА СОСТОЯНИЯ)
+#define A0_PRESS (GPIOA->IDR & GPIO_IDR_IDR0)
+#define A1_PRESS (GPIOA->IDR & GPIO_IDR_IDR1)
+#define A2_PRESS (GPIOA->IDR & GPIO_IDR_IDR2)
+#define A3_PRESS (GPIOA->IDR & GPIO_IDR_IDR3)
 
-// макроопределения режимов работы СД
-#define DO_LED_ON GPIOC->IDR & GPIO_IDR_IDR13
-#define LED_ON GPIOC->BSRR = GPIO_BSRR_BR13
-#define LED_OFF GPIOC->BSRR = GPIO_BSRR_BS13
+// макроопределения режимов работы Светодиода
+#define DO_LED_ON GPIOC->IDR & GPIO_IDR_IDR13   //Проверка состояния диода
+#define LED_ON GPIOC->BSRR = GPIO_BSRR_BR13    //1 на выход
+#define LED_OFF GPIOC->BSRR = GPIO_BSRR_BS13  //0 на выход
 
 //макроопределения времени паузы и коммутации
-#define TIME_LED_STANDARD 	(uint16_t)1000
-#define TIME_COMMUT_А0 	(uint16_t)2000
-#define TIME_COMMUT_А2 	(uint16_t)3000
-#define TIME_COMMUT_А3 	(uint16_t)4000
+#define TIME_LED_STANDARD 	(uint16_t)1000   // 1с
+#define TIME_COMMUT_A1 	(uint16_t)2000      // 2с
+#define TIME_COMMUT_A2 	(uint16_t)3000     //3с
+#define TIME_COMMUT_A3 	(uint16_t)4000    //4с
 
 	volatile uint16_t high  = TIME_LED_STANDARD; //тактов коммутации
-	volatile uint16_t low = TIME_LED_STANDARD; //тактов паузы
-	uint8_t what_btn_prs = 0;
-
+	volatile uint16_t low = TIME_LED_STANDARD;  //тактов паузы
+	uint8_t what_btn_prs = 0;  //Указатель нажатой кнопки
 
 
 int main(void)
@@ -78,7 +77,6 @@ GPIOA->CRL |= GPIO_CRL_CNF3_1;  // порт на вход
 GPIOA->ODR &= ~GPIO_ODR_ODR3;  // подтяжка к -
 
 
-
 //Diod     C13
 RCC->APB2ENR |=RCC_APB2ENR_IOPCEN;
 //Сброс сотояния  пина
@@ -86,7 +84,6 @@ GPIOC->CRH &= ~(GPIO_CRH_CNF13_1 |GPIO_CRH_CNF13_0 |
 	  GPIO_CRH_MODE13_1 |GPIO_CRH_MODE13_0);
 //Настройка пина
 GPIOC->CRH|= GPIO_CRH_MODE13_1;
-
 
 
 // TIM 3
@@ -104,26 +101,81 @@ TIM3->CR1 |= TIM_CR1_CEN;
 
 	for(;;)
 	{
-		if (GPIOA->IDR &GPIO_IDR_IDR0) //Если кнопка  нажата
+		if (A0_PRESS && what_btn_prs != 1)
 		{
-
-
+			        //Обнуление счетчика
+					TIM3->CNT = 0x0;
+					//максимальное значение периода
+					TIM3->ARR = 0xFFFF;
+					//отключается разрешение прерывания по переполнению
+					TIM3->DIER &= ~TIM_DIER_UIE;
+                    //Комутация 1с
+					high = TIME_LED_STANDARD;
+					what_btn_prs = 1;
 		}
 
+	      else if (A1_PRESS && what_btn_prs == 0)
+				{
+					what_btn_prs = 2;
+					//Комутация 2с
+					high = TIME_COMMUT_A1;
+				}
 
-	};
+	      else if (A2_PRESS && what_btn_prs == 0)
+	      {
+					what_btn_prs = 3;
+					//Комутация 3с
+					high = TIME_COMMUT_A2;
+				}
 
-}
+				else if (A3_PRESS && what_btn_prs == 0)
+				{
+					what_btn_prs = 4;
+					//Комутация 4с
+					high = TIME_COMMUT_A3;
+				}
 
-void TIM3_IRQHandler(void)
-{
-TIM3->SR &= ~TIM_SR_UIF;
+				else if (!A0_PRESS && what_btn_prs == 1)
+				{
+					uint16_t now_pause = TIM3->CNT;
+					if (now_pause > 300) {
+						low = now_pause;//фильтр на дребезг и присвоение значение счетчика в паузу
+					}
+					//включается разрешение прерывания по переполнению
+					TIM3->DIER |= TIM_DIER_UIE;
+					what_btn_prs = 0;
+					//принудительная генерация события (иначе придется ждать, пока таймер
+					//не дотикает до макс значения, а это противоречит заданию)
+					TIM3->EGR = 0x0001;
+				}
+				else if (!A1_PRESS && what_btn_prs == 2)
+				{
+					what_btn_prs = 0;
+					high = TIME_LED_STANDARD;
+				}
+				else if (!A2_PRESS && what_btn_prs == 3)
+				{
+					what_btn_prs = 0;
+					high = TIME_LED_STANDARD;
+				}
+				else if (!A3_PRESS && what_btn_prs == 4)
+				{
+					what_btn_prs = 0;
+					high = TIME_LED_STANDARD;
+				}
+			}
+		}
 
-if (GPIOC->ODR & GPIO_ODR_ODR13)
-
-	GPIOC->BSRR = GPIO_BSRR_BR13;
-	else
-
-	GPIOC->BSRR = GPIO_BSRR_BS13;
-
-}
+		void TIM3_IRQHandler(void){
+			//Сброс флага переполнения таймера
+			TIM3->SR &= ~TIM_SR_UIF;
+			//Введение понятий комутация/пауза
+			if (DO_LED_ON){
+				LED_ON;
+				TIM3->ARR = high;
+			}
+			else {
+				LED_OFF;
+				TIM3->ARR = low;
+			}
+		}

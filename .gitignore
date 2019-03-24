@@ -1,0 +1,14 @@
+CMSIS/ 
+inc/
+startup/
+StdPeriph_Driver/
+src/syscalls.c
+src/system_stm32f10x.c
+.cproject
+.project 
+.settings/
+*.ld
+*.swp
+Debug/
+*.cfg
+*.xml

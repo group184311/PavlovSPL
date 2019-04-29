@@ -138,7 +138,8 @@ TIM3->CR1 |= TIM_CR1_CEN;
 				else if (!A0_PRESS && what_btn_prs == 1)
 				{
 					uint16_t now_pause = TIM3->CNT;
-					if (now_pause > 300) {
+					if (now_pause > 300)
+					{
 						low = now_pause;//фильтр на дребезг и присвоение значение счетчика в паузу
 					}
 					//включаетс€ разрешение прерывани€ по переполнению
@@ -170,7 +171,8 @@ TIM3->CR1 |= TIM_CR1_CEN;
 			//—брос флага переполнени€ таймера
 			TIM3->SR &= ~TIM_SR_UIF;
 			//¬ведение пон€тий комутаци€/пауза
-			if (DO_LED_ON){
+			if (DO_LED_ON)
+			{
 				LED_ON;
 				TIM3->ARR = high;
 			}

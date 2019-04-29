@@ -37,57 +37,88 @@ int main(void)
 {
 
 
-RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;//Тактирование порта А
-
+//RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;//Тактирование порта А
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 // Кнопка 1   A0
 //Сброс сотояния  пина
-GPIOA->CRL &= ~(GPIO_CRL_CNF0_1 | GPIO_CRL_CNF0_0 |
-				GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0);
+//GPIOA->CRL &= ~(GPIO_CRL_CNF0_1 | GPIO_CRL_CNF0_0 |
+			//GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0);
 
-//Настройка пина
-GPIOA->CRL |= GPIO_CRL_CNF0_1;  // порт на вход
-GPIOA->ODR &= ~GPIO_ODR_ODR0;  // подтяжка к -
+	//Настройка пина
+	//GPIOA->CRL |= GPIO_CRL_CNF0_1;  // порт на вход
+	//GPIOA->ODR &= ~GPIO_ODR_ODR0;  // подтяжка к -
+
+	GPIO_InitTypeDef PinA0;
+		PinA0.GPIO_Pin = GPIO_Pin_0;
+		PinA0.GPIO_Mode = GPIO_Mode_IPD;
+		GPIO_Init(GPIOA, &PinA0);
+
 
 //Кнопка 2    A1
 //Сброс сотояния  пина
-GPIOA->CRL &= ~(GPIO_CRL_CNF1_1 | GPIO_CRL_CNF1_0 |
+/*GPIOA->CRL &= ~(GPIO_CRL_CNF1_1 | GPIO_CRL_CNF1_0 |
 		      GPIO_CRL_MODE1_1 | GPIO_CRL_MODE1_0);
 
 //Настройка пина
 GPIOA->CRL |= GPIO_CRL_CNF1_1;  // порт на вход
 GPIOA->ODR &= ~GPIO_ODR_ODR1;  // подтяжка к -
+*/
+		GPIO_InitTypeDef PinA1;
+				PinA1.GPIO_Pin = GPIO_Pin_1;
+				PinA1.GPIO_Mode = GPIO_Mode_IPD;
+				GPIO_Init(GPIOA, &PinA1);
+
+
 
 //Кнопка 3  A2
 //Сброс сотояния  пина
-GPIOA->CRL &= ~(GPIO_CRL_CNF2_1 | GPIO_CRL_CNF2_0 |
+/*GPIOA->CRL &= ~(GPIO_CRL_CNF2_1 | GPIO_CRL_CNF2_0 |
 				GPIO_CRL_MODE2_1 | GPIO_CRL_MODE2_0);
 
 //Настройка пина
 GPIOA->CRL |= GPIO_CRL_CNF2_1;  // порт на вход
-GPIOA->ODR &= ~GPIO_ODR_ODR2;  // подтяжка к -
+GPIOA->ODR &= ~GPIO_ODR_ODR2;  // подтяжка к -*/
+
+	GPIO_InitTypeDef PinA2;
+			PinA2.GPIO_Pin = GPIO_Pin_2;
+			PinA2.GPIO_Mode = GPIO_Mode_IPD;
+			GPIO_Init(GPIOA, &PinA2);
 
 
 //Кнопка 4   A3
 //Сброс сотояния  пина
-GPIOA->CRL &= ~(GPIO_CRL_CNF3_1 | GPIO_CRL_CNF3_0 |
+/*GPIOA->CRL &= ~(GPIO_CRL_CNF3_1 | GPIO_CRL_CNF3_0 |
 				GPIO_CRL_MODE3_1 | GPIO_CRL_MODE3_0);
 
 //Настройка пина
 GPIOA->CRL |= GPIO_CRL_CNF3_1;  // порт на вход
-GPIOA->ODR &= ~GPIO_ODR_ODR3;  // подтяжка к -
+GPIOA->ODR &= ~GPIO_ODR_ODR3;  // подтяжка к -*/
+
+		GPIO_InitTypeDef PinA4;
+				PinA4.GPIO_Pin = GPIO_Pin_4;
+				PinA4.GPIO_Mode = GPIO_Mode_IPD;
+				GPIO_Init(GPIOA, &PinA4);
+
 
 
 //Diod     C13
-RCC->APB2ENR |=RCC_APB2ENR_IOPCEN;
+//RCC->APB2ENR |=RCC_APB2ENR_IOPCEN;
+RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 //Сброс сотояния  пина
-GPIOC->CRH &= ~(GPIO_CRH_CNF13_1 |GPIO_CRH_CNF13_0 |
+/*GPIOC->CRH &= ~(GPIO_CRH_CNF13_1 |GPIO_CRH_CNF13_0 |
 	  GPIO_CRH_MODE13_1 |GPIO_CRH_MODE13_0);
 //Настройка пина
-GPIOC->CRH|= GPIO_CRH_MODE13_1;
+      GPIOC->CRH|= GPIO_CRH_MODE13_1;*/
+
+         GPIO_InitTypeDef PinC13;
+			PinC13.GPIO_Pin = GPIO_Pin_13;
+			PinC13.GPIO_Speed  = GPIO_Speed_2MHz;
+		    PinC13.GPIO_Mode = GPIO_Mode_Out_PP;
+			GPIO_Init(GPIOC, &PinC13);
 
 
 // TIM 3
-RCC->APB1ENR|=RCC_APB1ENR_TIM3EN;//Включение тактирования таймера
+/*RCC->APB1ENR|=RCC_APB1ENR_TIM3EN;//Включение тактирования таймера
 
 TIM3->PSC=36000-1;// Зпуск таймеран а тактовой частоте 1000kHz
 
@@ -97,7 +128,22 @@ TIM3->DIER|=TIM_DIER_UIE;//Разрешение прерывания по переполнению
 
 NVIC_EnableIRQ(TIM3_IRQn);  //Включение прерывания
 
-TIM3->CR1 |= TIM_CR1_CEN;
+TIM3->CR1 |= TIM_CR1_CEN;*/
+
+RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+
+		TIM_TimeBaseInitTypeDef TIM3_CLOCK;
+			TIM3_CLOCK.TIM_Prescaler = 36000 - 1;
+			TIM3_CLOCK.TIM_Period = TIME_LED_STANDARD;
+			TIM3_CLOCK.TIM_CounterMode = TIM_CounterMode_Up;
+			TIM3_CLOCK.TIM_ClockDivision = TIM_CKD_DIV1;
+			TIM_TimeBaseInit(TIM3, &TIM3_CLOCK);
+
+			TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+			NVIC_EnableIRQ(TIM3_IRQn);
+			TIM_Cmd(TIM3, ENABLE);
+
+
 
 	for(;;)
 	{

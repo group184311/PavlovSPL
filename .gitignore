@@ -1,0 +1,11 @@
+CMSIS/
+Debug/
+.cproject
+.project
+.settings/
+StdPeriph_driver/
+*.cfg
+*.lb
+*.xml
+*.swp
+
